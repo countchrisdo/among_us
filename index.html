@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+	<link href="water.css" rel="stylesheet" type="text/css" />
+	<link href="style.css" rel="stylesheet" type="text/css" />
+
+	<!-- HTML Meta Tags -->
+	<title>amogus</title>
+	<meta name="description" content="sussy suss susususus susssyssyssssussssusss sussssssss
+
+im in pain lmfao - piero#0001">
+
+	<!-- Facebook Meta Tags -->
+	<meta property="og:url" content="https://www.iminpain.org/index.html">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="amogus">
+	<meta property="og:description" content="sussy suss susususus susssyssyssssussssusss sussssssss
+
+im in pain lmfao - piero#0001">
+	<meta property="og:image" content="https://www.iminpain.org/amogus.png">
+
+	<!-- Twitter Meta Tags -->
+	<meta name="twitter:card" content="player">
+	<meta name="twitter:player" content="https://www.iminpain.org/twitter.html">
+	<meta name="twitter:player:width" content="640">
+	<meta name="twitter:player:height" content="480">
+	<meta property="twitter:url" content="https://www.iminpain.org/index.html">
+	<meta name="twitter:title" content="amogus">
+	<meta name="twitter:description" content="sussy suss susususus susssyssyssssussssusss sussssssss
+
+im in pain lmfao - piero#0001">
+	<meta name="twitter:image" content="https://www.iminpain.org/amogus.png">
+
+	<meta charset="utf-8">
+</head>
+
+<body>
+	<div class="contentbox">
+		<script src="https://kaboomjs.com/lib/0.2.0/kaboom.js">
+		</script>
+
+		<script>
+			var isDead = false;
+
+kaboom.global();
+loadSprite("imposter", "sprites/imposter.kbmsprite");
+loadSprite("road", "sprites/road.png");
+loadSprite("sus", "sprites/sus.jpg");
+loadSprite("crewmate", "sprites/crewmate.kbmsprite", conf = {
+	anims: {
+		"run": [
+			1,
+			4
+		],
+		"idle": [
+			0,
+			0
+		],
+		"dead": [
+			5,
+			5
+		],
+		"dying": [
+			6,
+			6
+		],
+	},
+});
+loadSprite("blue", "sprites/blue.kbmsprite", conf = {
+	anims: {
+		"sitting": [
+			0,
+			0
+		],
+		"dead": [
+			1,
+			1
+		],
+	},
+});
+loadSprite("pink", "sprites/pink.kbmsprite", conf = {
+	anims: {
+		"sitting": [
+			0,
+			0
+		],
+		"dead": [
+			1,
+			1
+		],
+	},
+});
+
+
+init({
+  width: 320,
+  height: 240,
+  fullscreen: false,
+  scale: 3,
+});
+
+loadSound("songlol", "songlol.mp3");
+
+scene("main", (args = {}) => {
+
+layers([
+	"bg",
+	"others",
+	"game",
+	"ui",
+], "game");
+
+const upBound = 60;
+const lowBound = height() - 34;
+const speed = 90;
+let speedMod = .5;
+
+mouseRelease( () => {
+    var music = play("songlol", { loop: true, });
+});
+
+var music = play("songlol", { loop: true, });
+
+for (let i = 0; i < 7; i++) {
+	add([
+		sprite("sus"),
+		pos(i*50, 0),
+		scale(.1),
+		layer("bg"),
+	]);
+}
+
+for (let i = 0; i < 7; i++) {
+	add([
+		sprite("sus"),
+		pos(i*50, 50),
+		scale(.1),
+		layer("bg"),
+	]);
+}
+
+// TODO: make helper for inf scroll backgrounds
+// scrolling road (2 sprites cycling)
+add([
+	sprite("road"),
+	pos(0, 0),
+	layer("bg"),
+	scale(2),
+	"road",
+]);
+
+add([
+	sprite("road"),
+	pos(width() * 2, 0),
+	layer("bg"),
+	scale(2),
+	"road",
+]);
+
+action("road", (r) => {
+	r.move(-speed * speedMod, 0);
+	if (r.pos.x <= -width() * 2) {
+		r.pos.x += width() * 4;
+	}
+});
+
+// player
+const crewmate = add([
+	sprite("crewmate", {
+		animSpeed: .2,
+	}),
+	pos(100, height() / 2),
+	color(),
+	origin("center"),
+	area(vec2(-12, -6), vec2(12, 8)),
+	{
+		speed: 120,
+	},
+]);
+
+crewmate.play("run");
+
+
+
+// obj spawn
+loop(.3, () => {
+	const obj = choose([
+		"blue",
+		"pink",
+		"imposter"
+	]);
+	if (obj == "imposter") {
+		add([
+			sprite(obj),
+			"obj",
+			obj,
+			scale(.5),
+			pos(width(), rand(lowBound, upBound)),
+		]);
+	}
+	else {
+		add([
+			sprite(obj),
+			"obj",
+			obj,
+			scale(.25),
+			pos(width(), rand(lowBound, upBound)),
+		]);
+	}
+	
+});
+
+action("obj", (o) => {
+	o.move(-speed * speedMod, 0);
+	if (o.pos.x <= -width()) {
+		destroy(o);
+	}
+});
+
+// collision resolution
+crewmate.collides("blue", (a) => {
+	a.layer = "others";
+	a.play('dead');
+	happiness.value += 50;
+});
+
+crewmate.collides("pink", (a) => {
+	a.layer = "others";
+	a.play('dead');
+	happiness.value += 100;
+});
+
+crewmate.collides("imposter", (a) => {
+	isDead = true;
+	music.stop();
+	//play("songlol", { loop: true, volume: 100.0, });
+	music = "";
+	play("songlol", { loop: true, volume: 100.0, });play("songlol", { loop: true, volume: 100.0, });play("songlol", { loop: true, volume: 100.0, });play("songlol", { loop: true, volume: 100.0, });play("songlol", { loop: true, volume: 100.0, });
+	crewmate.play("dying");
+	wait(.2, () => {
+		crewmate.play("dead");
+		speedMod = 0;
+		happiness.text = `final sussiness: ${happiness.value}`
+		add([
+			text("You were too \nsussy. \nGame over.", 16),
+			pos(width()/2, height()*.6),
+			layer("ui"),
+			origin("center"),
+			{
+				value: 0,
+			},
+		]);
+	});
+	
+	
+	a.layer = "others";
+	a.play('dead');
+	happiness.value += 100;
+});
+
+// happiness counter
+const happiness = add([
+	text("0", 4),
+	pos(width()/2-20, height()*.9),
+	layer("ui"),
+	{
+		value: 0,
+	},
+]);
+
+happiness.action(() => {
+	if (speedMod < .5 && isDead == false) {
+		happiness.value -= 2;
+	} else if (speedMod > .5 && isDead == false) {
+		happiness.value += 1;
+	} else if (isDead == true) {
+		happiness.text = `final sussiness: ${happiness.value}`;
+		//music.volume(10.0);music.play();music.play();music.play();music.play();music.play();
+	}
+	happiness.text = `sussiness: ${happiness.value}`;
+});
+
+// input
+keyDown("up", () => {
+	if (isDead == true) {return;};
+	if (crewmate.pos.y > upBound) {
+		crewmate.move(0, -crewmate.speed);
+	}
+});
+
+keyDown("down", () => {
+	if (isDead == true) {return;};
+	if (crewmate.pos.y < lowBound) {
+		crewmate.move(0, crewmate.speed);
+	}
+});
+
+keyDown("left", () => {
+	if (isDead == true) {return;};
+	speedMod = 0.25;
+	crewmate.animSpeed = 0.1 / speedMod;
+});
+
+keyDown("right", () => {
+	if (isDead == true) {return;};
+	speedMod = 1.5;
+	crewmate.animSpeed = 0.1 / speedMod;
+});
+
+keyRelease(["left", "right"], () => {
+	if (isDead == true) {return;};
+	speedMod = .5;
+	crewmate.animSpeed = 0.1 / speedMod;
+});
+});
+start("main");
+		</script>
+		<h1>CLICK ON THE PLAY AREA FOR MUSIC</h1>
+		<p>Up Arrow - Up</p>
+		<p>Down Arrow - Down</p>
+		<p>Right Arrow - Faster</p>
+		<p>Left Arrow - Slower</p>
+		<footer>piero#0001/piemadd.com/@piemadd made this lol</footer>
+	</div>
+</body>
+
+</html>
